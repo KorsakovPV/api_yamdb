@@ -1,7 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.core import mail
-from django.core.exceptions import ValidationError
-from django.core.validators import validate_email
 from django.shortcuts import get_object_or_404
 
 from rest_framework import filters, status, viewsets
@@ -12,26 +9,6 @@ from users import permissions
 from users.serializers import UserSerializer
 
 User = get_user_model()
-
-
-def email_is_valid(email):
-    try:
-        validate_email(email)
-        return True
-    except ValidationError:
-        return False
-
-
-def generate_mail(to_email, code):
-    subject = 'Confirmation code for YaMDB'
-    to = to_email
-    text_content = f'''You requested a confirmation code for API YaMDB.\n
-                        Attention, keep it a secret {code}'''
-    mail.send_mail(
-        subject, text_content,
-        [to],
-        fail_silently=False
-    )
 
 
 class UserViewSet(viewsets.ModelViewSet):
