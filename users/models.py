@@ -1,3 +1,6 @@
 from django.db import models
 
-# Create your models here.
+
+class User(models.Model):
+    # нужно явно не от Model наследоваться
+    pass
