@@ -1,9 +1,9 @@
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from users.models import User
 
-SCORE_CHOICES = list(zip(range(1, 10), range(1, 10)))
+SCORE_CHOICES = list(zip(range(1, 11), range(1, 11)))
 
 
 class Genre(models.Model):
@@ -41,7 +41,9 @@ class Review(models.Model):
     text = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name='author_reviews')
-    score = models.IntegerField(choices=SCORE_CHOICES)
+    score = models.IntegerField(choices=SCORE_CHOICES,
+                                validators=[MinValueValidator(1),
+                                            MaxValueValidator(10)])
     pub_date = models.DateTimeField('date published', auto_now_add=True,
                                     db_index=True)
 
