@@ -7,9 +7,14 @@ from rest_framework_simplejwt.views import (
 from rest_framework.routers import DefaultRouter
 
 from users import views
+from content import views as content_views
 
 router_v1 = DefaultRouter()
 router_v1.register('users', views.UserViewSet)
+router_v1.register('categories', content_views.CategoryViewSet)
+router_v1.register('genres', content_views.GenreViewSet)
+router_v1.register('titles', content_views.TitleViewSet)
+
 # router_v1.register('', views. , basename='')
 
 urlpatterns = [

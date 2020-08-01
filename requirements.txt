@@ -26,5 +26,6 @@ sqlparse==0.3.1           # via django
 urllib3==1.25.9           # via requests
 wcwidth==0.1.9            # via pytest
 zipp==3.1.0               # via importlib-metadata
-djangorestframework-simplejwt
-django_filter
+djangorestframework-simplejwt==4.4.0
+django-filter==2.3.0
+drf-rw-serializers==1.0.3
