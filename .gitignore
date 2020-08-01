@@ -17,3 +17,9 @@ __pycache__/
 media/
 
 db.sqlite3
+
+**/migrations/*
+
+setup.cfg
+
+/sent_emails/
