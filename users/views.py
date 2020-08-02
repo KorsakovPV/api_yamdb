@@ -26,7 +26,7 @@ class APIUser(APIView):
             user = get_object_or_404(User, id=request.user.id)
             serializer = UserSerializer(user)
             return Response(serializer.data)
-        return Response('Вы не авторизованы',
+        return Response('You are not authenticated',
                         status=status.HTTP_401_UNAUTHORIZED)
 
     def patch(self, request):
@@ -38,5 +38,5 @@ class APIUser(APIView):
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
-        return Response('Вы не авторизованы',
+        return Response('You are not authenticated',
                         status=status.HTTP_401_UNAUTHORIZED)

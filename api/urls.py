@@ -1,8 +1,4 @@
 from django.urls import include, path
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView
-)
 
 from rest_framework.routers import DefaultRouter
 
@@ -18,9 +14,9 @@ router_v1.register('titles', content_views.TitleViewSet)
 # router_v1.register('', views. , basename='')
 
 urlpatterns = [
-    path('v1/users/me/', views.APIUser.as_view()),
-    # path('v1/auth/email/', include('users.urls')),
-    # path('v1/auth/token/', include('users.urls')),
-    # path('v1/auth/token/refresh/', include('users.urls')),
+    path('v1/users/me/', APIUser.as_view()),
+    path('v1/auth/email/', views.send_confirmation_code,
+         name='send_confirmation_code'),
+    path('v1/auth/token/', views.get_jwt_token, name='get_jwt_token'),
     path('v1/', include(router_v1.urls)),
 ]
