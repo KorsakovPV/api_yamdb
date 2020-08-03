@@ -1,28 +1,25 @@
 from django.contrib import admin
-from import_export.admin import ImportExportModelAdmin
 
 from .models import Category, Genre, Title, Review, Comment
 
-# Не обращайте внимания. Сейчас в админке есть возможность загрузки CSV\XLSX файлов, но она корявая.
 
-
-class GenreAdmin(ImportExportModelAdmin):
+class GenreAdmin(admin.ModelAdmin):
     pass
 
 
-class CategoryAdmin(ImportExportModelAdmin):
+class CategoryAdmin(admin.ModelAdmin):
     pass
 
 
-class TitleAdmin(ImportExportModelAdmin):
+class TitleAdmin(admin.ModelAdmin):
     pass
 
 
-class ReviewAdmin(ImportExportModelAdmin):
+class ReviewAdmin(admin.ModelAdmin):
     pass
 
 
-class CommentAdmin(ImportExportModelAdmin):
+class CommentAdmin(admin.ModelAdmin):
     pass
 
 

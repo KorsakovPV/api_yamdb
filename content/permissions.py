@@ -16,13 +16,11 @@ class IsAuthorOrAdminOrModerator(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         if request.user and request.user.is_authenticated:
-            if (
-                    request.user.is_staff or request.user.role == 'admin' or
+            if (request.user.is_staff or request.user.role == 'admin' or
                     request.user.role == 'moderator' or
                     obj.author == request.user or
                     request.method == 'POST' and
-                    request.user.is_authenticated
-            ):
+                    request.user.is_authenticated):
                 return True
         elif request.method in permissions.SAFE_METHODS:
             return True

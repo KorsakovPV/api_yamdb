@@ -43,7 +43,7 @@ class GenreViewSet(CreateModelMixin, ListModelMixin, DestroyModelMixin,
 
 class TitleViewSet(drf_rw_serializers_viewsets.ModelViewSet):
     queryset = Title.objects.all()
-    permission_classes = [IsAdminOrReadOnly, ]
+    permission_classes = [IsAdminOrReadOnly]
     filterset_class = TitleFilter
     pagination_class = PageNumberPagination
     read_serializer_class = TitleReadSerializer
@@ -52,9 +52,8 @@ class TitleViewSet(drf_rw_serializers_viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [
-        IsAuthenticatedOrReadOnly, IsAuthorOrAdminOrModerator
-    ]
+    permission_classes = [IsAuthenticatedOrReadOnly,
+                          IsAuthorOrAdminOrModerator]
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs['title_id'])
@@ -64,9 +63,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs['title_id'])
         if title and serializer.is_valid:
-            review = Review.objects.filter(
-                title=title,
-                author=self.request.user)
+            review = Review.objects.filter(title=title,
+                                           author=self.request.user)
             if len(review) == 0:
                 serializer.save(author=self.request.user, title=title)
             else:
@@ -85,7 +83,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthorOrAdminOrModerator, ]
+    permission_classes = [IsAuthorOrAdminOrModerator]
 
     def get_queryset(self):
         review = get_object_or_404(Review, id=self.kwargs['review_id'])
