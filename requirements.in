@@ -4,3 +4,5 @@ django
 djangorestframework
 djangorestframework-simplejwt
 django_filter
+django-import-export
+drf-rw-serializers
