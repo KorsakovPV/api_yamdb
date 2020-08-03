@@ -21,7 +21,6 @@ INSTALLED_APPS = [
     'api',
     'content',
     'users',
-    'import_export',
 ]
 
 MIDDLEWARE = [
