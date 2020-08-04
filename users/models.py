@@ -9,7 +9,7 @@ class User(AbstractUser):
     description = models.TextField(max_length=300, blank=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username'] # обход ошибки "create_superuser() missing 1 required positional argument: 'username'"
+    REQUIRED_FIELDS = ['username']
 
     USER_ROLE = (
         ('user', 'user'),
