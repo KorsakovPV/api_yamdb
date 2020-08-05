@@ -20,7 +20,7 @@ def id_generator(size=6, chars=string.digits):
 
 @api_view(['POST'])
 def send_confirmation_code(request):
-    serializer = serializers.SendСonfirmationCodeSerializer(data=request.data)
+    serializer = serializers.SendConfirmationCodeSerializer(data=request.data)
     email = request.data['email']
     if serializer.is_valid():
         confirmation_code = id_generator()
