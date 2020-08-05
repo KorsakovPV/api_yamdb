@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from content import views as content_views
 from users import views as users_views
-from .views import send_confirmation_code, get_jwt_token
+from .views import get_jwt_token#send_confirmation_code,
 
 router_v1 = DefaultRouter()
 router_v1.register('users', users_views.UserViewSet)
@@ -19,8 +19,8 @@ router_v1.register(
 
 urlpatterns = [
     path('v1/users/me/', users_views.APIUser.as_view()),
-    path('v1/auth/email/', send_confirmation_code,
-         name='send_confirmation_code'),
+    # path('v1/auth/email/', send_confirmation_code,
+    #      name='send_confirmation_code'),
     path('v1/auth/token/', get_jwt_token, name='get_jwt_token'),
     path('v1/', include(router_v1.urls)),
 ]

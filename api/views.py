@@ -18,25 +18,25 @@ def id_generator(size=6, chars=string.digits):
     return ''.join(random.choice(chars) for x in range(size))
 
 
-@api_view(['POST'])
-def send_confirmation_code(request):
-    serializer = serializers.SendСonfirmationCodeSerializer(data=request.data)
-    email = request.data['email']
-    if serializer.is_valid():
-        confirmation_code = id_generator()
-        user = User.objects.filter(email=email).exists()
-        if not user:
-            User.objects.create_user(email=email)
-        User.objects.filter(email=email).update(
-            confirmation_code=make_password(confirmation_code, salt=None,
-                                            hasher='default')
-        )
-        mail_subject = 'Confirmation code on Yamdb'
-        message = f'Your confirmation code: {confirmation_code}'
-        send_mail(mail_subject, message, 'Yamdb <admin@yamdb.ru>', [email])
-        return Response(f'The code was sent to the address {email}',
-                        status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# @api_view(['POST'])
+# def send_confirmation_code(request):
+#     serializer = serializers.SendСonfirmationCodeSerializer(data=request.data)
+#     email = request.data['email']
+#     if serializer.is_valid():
+#         confirmation_code = id_generator()
+#         user = User.objects.filter(email=email).exists()
+#         if not user:
+#             User.objects.create_user(email=email)
+#         User.objects.filter(email=email).update(
+#             confirmation_code=make_password(confirmation_code, salt=None,
+#                                             hasher='default')
+#         )
+#         mail_subject = 'Confirmation code on Yamdb'
+#         message = f'Your confirmation code: {confirmation_code}'
+#         send_mail(mail_subject, message, 'Yamdb <admin@yamdb.ru>', [email])
+#         return Response(f'The code was sent to the address {email}',
+#                         status=status.HTTP_200_OK)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
