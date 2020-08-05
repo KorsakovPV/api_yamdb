@@ -18,7 +18,7 @@ media/
 
 db.sqlite3
 
-**/migrations/*
+
 
 setup.cfg
 
