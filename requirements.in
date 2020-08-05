@@ -4,3 +4,4 @@ django
 djangorestframework
 djangorestframework-simplejwt
 django_filter
+drf-rw-serializers
