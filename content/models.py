@@ -2,8 +2,9 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from users.models import User
+# TODO red Не лучший способ получать модель. Для этого есть get_user_model(). Это позволит достаточно безболезненно переехать на другую модель юзеров, например, при разделении на микросервисы
 
-
+#TODO red Общий коммент - очень не хватает всяких улучшений вида verbose_name  для полей и для меты на целые классы. Это и как часть документации кода, и улучшение админки
 class Genre(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=30, unique=True)
@@ -23,6 +24,10 @@ class Category(models.Model):
 class Title(models.Model):
     name = models.CharField(max_length=255)
     year = models.IntegerField(validators=[MinValueValidator(0)], default=0)
+    # TODO red стоп, а разве произведения искусства до нашей эры не существовали?
+    # Как раз это прекрасно ложится в "отрицательный" год. Тем более, что "список категорий может быть расширен"
+    # А вот валидировать то, что их год выпуска не больше, чем текущий, выглядит более хорошей идеей
+    # Кстати, один из фильтров - по году, так что можно сделать из него индекс
     category = models.ForeignKey(Category, on_delete=models.SET_NULL,
                                  related_name='category_titles', null=True)
     genre = models.ManyToManyField(Genre, related_name='genre_titles',
@@ -40,6 +45,8 @@ class Review(models.Model):
     text = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name='author_reviews')
+    # TODO red а зачем здесь чойсы?
+    # Мин/Макс валидаторы на месте, это хорошо, а интеджер это же ведь целочисленные значения, так что это здесь не нужно совсем
     score = models.IntegerField(
         choices=[(_, str(_)) for _ in range(1, 11)],
         validators=[MinValueValidator(1), MaxValueValidator(10)])

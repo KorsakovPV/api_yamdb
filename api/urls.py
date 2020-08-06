@@ -17,6 +17,7 @@ router_v1.register(
     r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
     content_views.CommentViewSet, basename='comments')
 
+# TODO gray два урла с общим префиксом auth лучше выделить в отдельный список и сюда includeить
 urlpatterns = [
     path('v1/users/me/', users_views.APIUser.as_view()),
     path('v1/auth/email/', send_confirmation_code,

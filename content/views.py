@@ -28,10 +28,12 @@ class CategoryViewSet(CreateModelMixin, ListModelMixin, DestroyModelMixin,
     search_fields = ['=name', ]
     lookup_field = 'slug'
     pagination_class = PageNumberPagination
+    # TODO gray Писать здесь не обязательно, так как не отличается от глобального из настроек
 
 
 class GenreViewSet(CreateModelMixin, ListModelMixin, DestroyModelMixin,
                    GenericViewSet):
+    # TODO gray Данный набор миксинов повторяется, можно вынести в отдельный пустой класс, чтобы наследоваться от него - DRY
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = [IsAdminOrReadOnly, ]
@@ -42,6 +44,8 @@ class GenreViewSet(CreateModelMixin, ListModelMixin, DestroyModelMixin,
 
 
 class TitleViewSet(drf_rw_serializers_viewsets.ModelViewSet):
+    # TODO red тащить лишний пакет вместо того, чтобы определить get_serializer_class, что является стандартной штукой из самого дрф? Ну такое.
+    # Выпиливаем лишний пакет, переопределяем метод получения сериализатора
     queryset = Title.objects.all()
     permission_classes = [IsAdminOrReadOnly, ]
     filterset_class = TitleFilter
@@ -65,14 +69,19 @@ class ReviewViewSet(viewsets.ModelViewSet):
             review = Review.objects.filter(title=title,
                                            author=self.request.user)
             if len(review) == 0:
+                # TODO red Никогда не делайте len() от квайрисета. Если нужно проверить его длину, то есть готовый метод
+                # Если посмотреть чуть шире, здесь не нужно этого делать вообще - нужно просто сделать правильный get_object_or_404
                 serializer.save(author=self.request.user, title=title)
             else:
                 raise ValidationError('Ревью не найдены')
         int_rating = Review.objects.filter(title=title).aggregate(Avg('score'))
+        # TODO red Не самая лучшая идея хранить рейтинг напрямую в модели - уж очень много головной боли по поводу поддержания настоящего значения при всех операциях удаления/добавления/изменения. Еще более неприятная идея работать с другой моделью, когда мы обращаемся к ревью - уж очень неочевидное поведение
+        # Намного лучше подсчитывать рейтинг именно в тот момент, когда он нужен - во вьюсете тайтлов.
         title.rating = int_rating['score__avg']
         title.save(update_fields=['rating'])
 
     def perform_update(self, serializer):
+        # TODO red в идеале этого метода не должно быть вообще, о чем я и говорил - головная боль
         serializer.save()
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         int_rating = Review.objects.filter(title=title).aggregate(Avg('score'))
@@ -86,15 +95,22 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         review = get_object_or_404(Review, id=self.kwargs['review_id'])
+        # TODO red Комменты зависят от ревью, ревью от тайтла, значит комменты зависят и от ревью, и от тайтла. Поэтому нужно проверить, что в запросе валидно указаны оба этих параметра - коммент принадлежит ревью, который принадлежит тайтлу
+        # Челлендж - сделать это одним get_object_or_404
+        # Не забываем, что в кваргах не всегда бывает то, что нужно
         queryset = Comment.objects.filter(review=review)
         return queryset
 
     def perform_create(self, serializer):
         review = get_object_or_404(Review, id=self.kwargs['review_id'])
+        # TODO red Аналогично
         if serializer.is_valid:
+            # TODO red Эта строчка всегда дает Тру, потому что метод не вызван, а так как он существует, что ссылка на него дает Тру. Ну и про ифы в валидации сериализатроа уже говорил
             serializer.save(author=self.request.user, review=review)
 
     def perform_update(self, serializer):
         if self.request.user.is_anonymous:
+            # TODO red А зачем нужен этот метод?
+            # В пермишене есть рид_онли (для безопасных), а методы обновления нифига не безопасные, поэтому сюда дойдут только не аноны
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         serializer.save()
