@@ -22,7 +22,6 @@ auth_patterns = [
     path('token/', get_jwt_token, name='get_jwt_token')
 ]
 
-# TODO gray два урла с общим префиксом auth лучше выделить в отдельный список и сюда includeить
 urlpatterns = [
     path('v1/auth/', include(auth_patterns)),
     path('v1/', include(router_v1.urls)),

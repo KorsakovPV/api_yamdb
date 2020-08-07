@@ -19,10 +19,6 @@ class UserViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ['user__username', ]
 
-    # TODO Все это относится к юзерам, а вьюсет для них уже есть. Даже в урле это внутри одного ресурса /users/
-    # Поэтому лучше отказаться от отдельной вьюхи и сделать это все кастомным экшеном внутри готового вьюсета
-    # TODO red в случаях, когда нет особой хитрой обработки ошибок сериализатора, намного проще и лучше писать не через иф, а прокинув параметр raise_exception, чтобы избежать лишней вложенности и ручной обработки ошибок
-    # TODO red Это тоже
     @action(methods=['patch', 'get'],
             permission_classes=[IsAuthenticated],
             detail=False,
