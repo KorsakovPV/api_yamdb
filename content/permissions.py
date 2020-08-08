@@ -5,8 +5,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
-        # TODO gray елиф не нужен - выше и так ретерн
-        elif request.user.is_authenticated:
+        if request.user.is_authenticated:
             return bool(request.user.is_staff or request.user.role == 'admin')
 
 # TODO red Пропущена часть OrReadOnly - хотелось бы, чтобы названия классов давали полное представление о том, что они делают
