@@ -14,8 +14,19 @@ ___
 
 ___
 
-## Документация:
-**[link](https://github.com/KorsakovPV/api_yamdb/blob/master/static/redoc.yaml)**
+## Установка:
+1. Клонируйте репозиторий на локальную машину.
+- ``git clone https://github.com/KorsakovPV/api_yamdb.git``
+2. Установите виртуальное окружение.
+- ``python3 -m venv venv``
+3. Активируйте виртуальное окружение.
+- ``venv\Scripts\activate``
+4. Установите зависимости.
+- ``pip install -r requirements.txt``
+5. Запустите локальный сервер.
+- ``python3 manage.py runserver``
+6. Перейдите в документацию проекта.
+- **[REDOC](http://127.0.0.1:8000/redoc/)**
 
 ___
 
