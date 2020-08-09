@@ -17,10 +17,12 @@ router_v1.register(
     r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)/comments',
     content_views.CommentViewSet, basename='comments')
 
+auth_patterns = [
+    path('email/', send_confirmation_code, name='send_confirmation_code'),
+    path('token/', get_jwt_token, name='get_jwt_token')
+]
+
 urlpatterns = [
-    path('v1/users/me/', users_views.APIUser.as_view()),
-    path('v1/auth/email/', send_confirmation_code,
-         name='send_confirmation_code'),
-    path('v1/auth/token/', get_jwt_token, name='get_jwt_token'),
+    path('v1/auth/', include(auth_patterns)),
     path('v1/', include(router_v1.urls)),
 ]

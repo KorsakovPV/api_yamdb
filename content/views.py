@@ -1,13 +1,13 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from drf_rw_serializers import viewsets as drf_rw_serializers_viewsets
 from rest_framework import viewsets, status, exceptions
+from rest_framework.exceptions import ValidationError
 from rest_framework.filters import SearchFilter
 from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
                                    ListModelMixin)
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from .filters import TitleFilter
 from .models import Category, Genre, Title, Review, Comment
@@ -17,35 +17,42 @@ from .serializers import (CategorySerializer, GenreSerializer,
                           ReviewSerializer, CommentSerializer)
 
 
-class CategoryViewSet(CreateModelMixin, ListModelMixin, DestroyModelMixin,
-                      GenericViewSet):
+class ModelMixinSet(CreateModelMixin, ListModelMixin, DestroyModelMixin,
+                    GenericViewSet):
+    pass
+
+
+class CategoryViewSet(ModelMixinSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly, ]
     filter_backends = [SearchFilter]
     search_fields = ['=name', ]
     lookup_field = 'slug'
-    pagination_class = PageNumberPagination
 
 
-class GenreViewSet(CreateModelMixin, ListModelMixin, DestroyModelMixin,
-                   GenericViewSet):
+class GenreViewSet(ModelMixinSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = [IsAdminOrReadOnly, ]
     filter_backends = [SearchFilter]
     search_fields = ['=name']
     lookup_field = 'slug'
-    pagination_class = PageNumberPagination
 
 
-class TitleViewSet(drf_rw_serializers_viewsets.ModelViewSet):
+class TitleViewSet(ModelViewSet):
     queryset = Title.objects.all()
     permission_classes = [IsAdminOrReadOnly, ]
     filterset_class = TitleFilter
-    pagination_class = PageNumberPagination
-    read_serializer_class = TitleReadSerializer
-    write_serializer_class = TitleWriteSerializer
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TitleReadSerializer
+        return TitleWriteSerializer
+
+    def get_queryset(self):
+        return Title.objects.annotate(
+            rating=Avg('titles_reviews__score')).all()
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -64,33 +71,22 @@ class ReviewViewSet(viewsets.ModelViewSet):
             raise exceptions.ValidationError('Вы уже поставили оценку')
         serializer.save(author=self.request.user, title=title)
 
-        int_rating = Review.objects.filter(title=title).aggregate(Avg('score'))
-        title.rating = int_rating['score__avg']
-        title.save(update_fields=['rating'])
-
-    def perform_update(self, serializer):
-        serializer.save()
-        title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
-        int_rating = Review.objects.filter(title=title).aggregate(Avg('score'))
-        title.rating = int_rating['score__avg']
-        title.save(update_fields=['rating'])
-
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [IsAuthorOrAdminOrModerator, ]
 
     def get_queryset(self):
-        review = get_object_or_404(Review, id=self.kwargs['review_id'])
+        review = get_object_or_404(Review,
+                                   pk=self.kwargs['review_id'],
+                                   title__id=self.kwargs['title_id'])
+        # Не забываем, что в кваргах не всегда бывает то, что нужно
         queryset = Comment.objects.filter(review=review)
         return queryset
 
     def perform_create(self, serializer):
-        review = get_object_or_404(Review, id=self.kwargs['review_id'])
-        if serializer.is_valid:
-            serializer.save(author=self.request.user, review=review)
-
-    def perform_update(self, serializer):
-        if self.request.user.is_anonymous:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-        serializer.save()
+        review = get_object_or_404(Review,
+                                   pk=self.kwargs['review_id'],
+                                   title__id=self.kwargs['title_id'])
+        serializer.is_valid(raise_exception=True)
+        serializer.save(author=self.request.user, review=review)
