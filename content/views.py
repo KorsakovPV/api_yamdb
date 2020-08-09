@@ -1,13 +1,11 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from drf_rw_serializers import viewsets as drf_rw_serializers_viewsets
-from rest_framework import viewsets, status
-from rest_framework.exceptions import ValidationError
+from rest_framework import viewsets, status, exceptions
 from rest_framework.filters import SearchFilter
 from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
                                    ListModelMixin)
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -61,13 +59,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs['title_id'])
-        if title and serializer.is_valid:
-            review = Review.objects.filter(title=title,
-                                           author=self.request.user)
-            if len(review) == 0:
-                serializer.save(author=self.request.user, title=title)
-            else:
-                raise ValidationError('Ревью не найдены')
+        if Review.objects.filter(author=self.request.user,
+                                 title_id=title).exists():
+            raise exceptions.ValidationError('Вы уже поставили оценку')
+        serializer.save(author=self.request.user, title=title)
+
         int_rating = Review.objects.filter(title=title).aggregate(Avg('score'))
         title.rating = int_rating['score__avg']
         title.save(update_fields=['rating'])

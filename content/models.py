@@ -40,9 +40,8 @@ class Review(models.Model):
     text = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name='author_reviews')
-    score = models.IntegerField(
-        choices=[(_, str(_)) for _ in range(1, 11)],
-        validators=[MinValueValidator(1), MaxValueValidator(10)])
+    score = models.IntegerField(validators=[MinValueValidator(1),
+                                            MaxValueValidator(10)])
     pub_date = models.DateTimeField('date published', auto_now_add=True,
                                     db_index=True)
 
