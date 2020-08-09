@@ -11,7 +11,9 @@ from rest_framework_simplejwt import tokens
 from api import serializers
 from users.models import User
 
+
 from api_yamdb.settings import CONFORMATION_SUBJECT, CONFORMATION_MESSAGE, SEND_FROM_EMAIL
+
 
 
 @api_view(['POST'])

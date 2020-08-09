@@ -1,15 +1,12 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from drf_rw_serializers import viewsets as drf_rw_serializers_viewsets
 from rest_framework import viewsets, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.filters import SearchFilter
 from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
                                    ListModelMixin)
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from .filters import TitleFilter
 from .models import Category, Genre, Title, Review, Comment
@@ -19,39 +16,38 @@ from .serializers import (CategorySerializer, GenreSerializer,
                           ReviewSerializer, CommentSerializer)
 
 
-class CategoryViewSet(CreateModelMixin, ListModelMixin, DestroyModelMixin,
-                      GenericViewSet):
+class ModelMixinSet(CreateModelMixin, ListModelMixin, DestroyModelMixin,
+                    GenericViewSet):
+    pass
+
+
+class CategoryViewSet(ModelMixinSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly, ]
     filter_backends = [SearchFilter]
     search_fields = ['=name', ]
     lookup_field = 'slug'
-    pagination_class = PageNumberPagination
-    # TODO gray Писать здесь не обязательно, так как не отличается от глобального из настроек
 
 
-class GenreViewSet(CreateModelMixin, ListModelMixin, DestroyModelMixin,
-                   GenericViewSet):
-    # TODO gray Данный набор миксинов повторяется, можно вынести в отдельный пустой класс, чтобы наследоваться от него - DRY
+class GenreViewSet(ModelMixinSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = [IsAdminOrReadOnly, ]
     filter_backends = [SearchFilter]
     search_fields = ['=name']
     lookup_field = 'slug'
-    pagination_class = PageNumberPagination
 
 
-class TitleViewSet(drf_rw_serializers_viewsets.ModelViewSet):
-    # TODO red тащить лишний пакет вместо того, чтобы определить get_serializer_class, что является стандартной штукой из самого дрф? Ну такое.
-    # Выпиливаем лишний пакет, переопределяем метод получения сериализатора
+class TitleViewSet(ModelViewSet):
     queryset = Title.objects.all()
     permission_classes = [IsAdminOrReadOnly, ]
     filterset_class = TitleFilter
-    pagination_class = PageNumberPagination
-    read_serializer_class = TitleReadSerializer
-    write_serializer_class = TitleWriteSerializer
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TitleReadSerializer
+        return TitleWriteSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
