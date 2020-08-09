@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from users import permissions
 from users.serializers import UserSerializer
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 
 User = get_user_model()
 
@@ -15,7 +15,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'username'
-    permission_classes = [permissions.IsAdmin]
+    permission_classes = [permissions.IsAdmin | IsAdminUser]
     filter_backends = [filters.SearchFilter]
     search_fields = ['user__username', ]
 
