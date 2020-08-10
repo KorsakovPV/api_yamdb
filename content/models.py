@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+User = get_user_model()
+
 
 class Genre(models.Model):
     name = models.CharField(max_length=255, verbose_name='genre name')
@@ -34,8 +36,6 @@ class Title(models.Model):
                                    blank=True, verbose_name='genre')
     description = models.TextField(blank=True,
                                    verbose_name='title description')
-    rating = models.IntegerField(blank=True, null=True,
-                                 verbose_name='title rating')
 
     class Meta:
         ordering = ('year',)
@@ -46,10 +46,9 @@ class Title(models.Model):
 
 class Review(models.Model):
     title = models.ForeignKey(Title, on_delete=models.CASCADE,
-                              related_name='titles_reviews',
-                              verbose_name='reviewed title')
+                              related_name='titles_reviews')
     text = models.TextField(verbose_name='review text')
-    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE,
+    author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name='author_reviews',
                                verbose_name='review author')
     score = models.IntegerField(
@@ -71,7 +70,7 @@ class Comment(models.Model):
                                related_name='review_comments',
                                verbose_name='commented review')
     text = models.TextField(verbose_name='comment text')
-    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE,
+    author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name='author_comments',
                                verbose_name='comment author')
     pub_date = models.DateTimeField(verbose_name='date published',

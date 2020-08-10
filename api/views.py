@@ -1,19 +1,25 @@
 from django.contrib.auth.tokens import default_token_generator
 
 from django.core.mail import send_mail
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-
-from rest_framework import status
+from rest_framework import status, viewsets, exceptions
 from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
+from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt import tokens
 
 from api import serializers
+from api.permissions import IsAuthorAdminModeratorOrReadOnly
+from api.serializers import (ReviewSerializer, CommentSerializer,
+                             TitleReadSerializer, TitleWriteSerializer)
+from content.filters import TitleFilter
+from content.models import Review, Title, Comment
+from content.permissions import IsAdminOrReadOnly
 from users.models import User
 
-
 from api_yamdb.settings import CONFORMATION_SUBJECT, CONFORMATION_MESSAGE, SEND_FROM_EMAIL
-
 
 
 @api_view(['POST'])
@@ -45,3 +51,57 @@ def get_jwt_token(request):
         return Response({'confirmation_code': 'Invalid confirmation code'},
                         status=status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TitleViewSet(ModelViewSet):
+    queryset = Title.objects.all()
+    permission_classes = [IsAdminOrReadOnly, ]
+    filterset_class = TitleFilter
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return TitleReadSerializer
+        return TitleWriteSerializer
+
+    def get_queryset(self):
+        return Title.objects.annotate(
+            rating=Avg('titles_reviews__score')).all()
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthorAdminModeratorOrReadOnly,
+                          IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        title = get_object_or_404(Title, id=self.kwargs['title_id'])
+        queryset = Review.objects.filter(title=title)
+        return queryset
+
+    def perform_create(self, serializer):
+        title = get_object_or_404(Title, id=self.kwargs['title_id'])
+        if Review.objects.filter(author=self.request.user,
+                                 title_id=title).exists():
+            raise exceptions.ValidationError('Вы уже поставили оценку')
+        serializer.save(author=self.request.user, title=title)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthorAdminModeratorOrReadOnly,
+                          IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        review = get_object_or_404(Review,
+                                   pk=self.kwargs['review_id'],
+                                   title__id=self.kwargs['title_id'])
+        # Не забываем, что в кваргах не всегда бывает то, что нужно
+        queryset = Comment.objects.filter(review=review)
+        return queryset
+
+    def perform_create(self, serializer):
+        review = get_object_or_404(Review,
+                                   pk=self.kwargs['review_id'],
+                                   title__id=self.kwargs['title_id'])
+        serializer.is_valid(raise_exception=True)
+        serializer.save(author=self.request.user, review=review)

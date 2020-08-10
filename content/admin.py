@@ -19,9 +19,9 @@ class CategoryAdmin(admin.ModelAdmin):
 
 class TitleAdmin(admin.ModelAdmin):
     list_display = (
-        'name', 'year', 'category', 'description', 'rating')
+        'name', 'year', 'category', 'description')
     search_fields = ('name', )
-    list_filter = ('year', 'category', 'rating', 'genre')
+    list_filter = ('year', 'category', 'genre')
     empty_value_display = '-пусто-'
 
 
