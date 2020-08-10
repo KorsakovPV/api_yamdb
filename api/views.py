@@ -1,23 +1,26 @@
 import uuid
 
+from api import serializers
+from api.filters import TitleFilter
+from api.permissions import IsAdminOrReadOnly, IsAuthorAdminModeratorOrReadOnly
+from api.serializers import (CategorySerializer, CommentSerializer,
+                             GenreSerializer, ReviewSerializer,
+                             TitleReadSerializer, TitleWriteSerializer)
+from content.models import Category, Comment, Genre, Review, Title
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import status, viewsets, exceptions
+from rest_framework import exceptions, status, viewsets
 from rest_framework.decorators import api_view
+from rest_framework.filters import SearchFilter
+from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
+                                   ListModelMixin)
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework_simplejwt import tokens
 
-from api import serializers
-from api.permissions import IsAuthorAdminModeratorOrReadOnly
-from api.serializers import (ReviewSerializer, CommentSerializer,
-                             TitleReadSerializer, TitleWriteSerializer)
-from content.filters import TitleFilter
-from content.models import Review, Title, Comment
-from content.permissions import IsAdminOrReadOnly
 from users.models import User
 
 
@@ -77,6 +80,29 @@ def get_jwt_token(request):
         return Response({'confirmation_code': 'Invalid confirmation code'},
                         status=status.HTTP_400_BAD_REQUEST)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ModelMixinSet(CreateModelMixin, ListModelMixin, DestroyModelMixin,
+                    GenericViewSet):
+    pass
+
+
+class CategoryViewSet(ModelMixinSet):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [IsAdminOrReadOnly, ]
+    filter_backends = [SearchFilter]
+    search_fields = ['=name', ]
+    lookup_field = 'slug'
+
+
+class GenreViewSet(ModelMixinSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = [IsAdminOrReadOnly, ]
+    filter_backends = [SearchFilter]
+    search_fields = ['=name']
+    lookup_field = 'slug'
 
 
 class TitleViewSet(ModelViewSet):
