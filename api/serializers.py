@@ -1,15 +1,19 @@
 from rest_framework import serializers
 
+
 from content.models import Review, Comment, Title, Genre, Category
 # TODO green Мне нравится, что есть сериализаторы для таких запросов, но я бы назвал их как UserEmailRegistration и UserConfirmation. Но можно оставить и так, тоже хорошо
 from content.serializers import CategorySerializer, GenreSerializer
 
 
-class SendConfirmationCodeSerializer(serializers.Serializer):
+
+
+class UserEmailRegistration(serializers.Serializer):
+
     email = serializers.EmailField(required=True)
 
 
-class GetJwtTokenSerializer(serializers.Serializer):
+class UserConfirmation(serializers.Serializer):
     email = serializers.EmailField(required=True)
     confirmation_code = serializers.CharField(required=True)
 
