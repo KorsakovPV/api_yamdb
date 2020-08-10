@@ -1,13 +1,6 @@
 from rest_framework import permissions
 
 
-class IsAdminOrReadOnly(permissions.BasePermission):
-    def has_permission(self, request, view):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        if request.user.is_authenticated:
-            return bool(request.user.is_staff or request.user.role == 'admin')
-
 # TODO red Пропущена часть OrReadOnly - хотелось бы, чтобы названия классов давали полное представление о том, что они делают
 # ИМХО, не призываю менять - лично мне никогда не нравилось составлять вот такие большие условия в один класс, я всегда предпочитал делать маленькие простенькие пермишены и потом составлять в нужном порядке именно во вьюхах - так получалось более гибко.
 class IsAuthorOrAdminOrModerator(permissions.BasePermission):

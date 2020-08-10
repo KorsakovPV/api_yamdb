@@ -1,53 +1,12 @@
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.exceptions import ValidationError
-from rest_framework.filters import SearchFilter
-from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
-                                   ListModelMixin)
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from .filters import TitleFilter
-from .models import Category, Genre, Title, Review, Comment
-from .permissions import IsAdminOrReadOnly, IsAuthorOrAdminOrModerator
-from .serializers import (CategorySerializer, GenreSerializer,
-                          TitleReadSerializer, TitleWriteSerializer,
-                          ReviewSerializer, CommentSerializer)
-
-
-class ModelMixinSet(CreateModelMixin, ListModelMixin, DestroyModelMixin,
-                    GenericViewSet):
-    pass
-
-
-class CategoryViewSet(ModelMixinSet):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
-    permission_classes = [IsAdminOrReadOnly, ]
-    filter_backends = [SearchFilter]
-    search_fields = ['=name', ]
-    lookup_field = 'slug'
-
-
-class GenreViewSet(ModelMixinSet):
-    queryset = Genre.objects.all()
-    serializer_class = GenreSerializer
-    permission_classes = [IsAdminOrReadOnly, ]
-    filter_backends = [SearchFilter]
-    search_fields = ['=name']
-    lookup_field = 'slug'
-
-
-class TitleViewSet(ModelViewSet):
-    queryset = Title.objects.all()
-    permission_classes = [IsAdminOrReadOnly, ]
-    filterset_class = TitleFilter
-
-    def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
-            return TitleReadSerializer
-        return TitleWriteSerializer
+from .models import Comment, Review, Title
+from .permissions import IsAuthorOrAdminOrModerator
+from .serializers import CommentSerializer, ReviewSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

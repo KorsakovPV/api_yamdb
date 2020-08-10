@@ -1,15 +1,17 @@
+from content import views as content_views
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from content import views as content_views
 from users import views as users_views
-from .views import send_confirmation_code, get_jwt_token
+
+from .views import (CategoryViewSet, GenreViewSet, TitleViewSet, get_jwt_token,
+                    send_confirmation_code)
 
 router_v1 = DefaultRouter()
 router_v1.register('users', users_views.UserViewSet)
-router_v1.register('categories', content_views.CategoryViewSet)
-router_v1.register('genres', content_views.GenreViewSet)
-router_v1.register('titles', content_views.TitleViewSet)
+router_v1.register('categories', CategoryViewSet)
+router_v1.register('genres', GenreViewSet)
+router_v1.register('titles', TitleViewSet)
 router_v1.register(r'titles/(?P<title_id>\d+)/reviews',
                    content_views.ReviewViewSet,
                    basename='reviews')
