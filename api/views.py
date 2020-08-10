@@ -118,12 +118,12 @@ class ReviewViewSet(viewsets.ModelViewSet):
                           IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        title = get_object_or_404(Title, id=self.kwargs['title_id'])
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         queryset = Review.objects.filter(title=title)
         return queryset
 
     def perform_create(self, serializer):
-        title = get_object_or_404(Title, id=self.kwargs['title_id'])
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         if Review.objects.filter(author=self.request.user,
                                  title_id=title).exists():
             raise exceptions.ValidationError('Вы уже поставили оценку')
@@ -137,15 +137,15 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         review = get_object_or_404(Review,
-                                   pk=self.kwargs['review_id'],
-                                   title__id=self.kwargs['title_id'])
+                                   pk=self.kwargs.get('review_id'),
+                                   title__id=self.kwargs.get('title_id'))
         queryset = Comment.objects.filter(review=review)
         return queryset
 
     def perform_create(self, serializer):
         review = get_object_or_404(Review,
-                                   pk=self.kwargs['review_id'],
-                                   title__id=self.kwargs['title_id'])
+                                   pk=self.kwargs.get('review_id'),
+                                   title__id=self.kwargs.get('title_id'))
         serializer.is_valid(raise_exception=True)
         serializer.save(author=self.request.user, review=review)
 
