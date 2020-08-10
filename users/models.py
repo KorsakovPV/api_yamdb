@@ -15,3 +15,11 @@ class User(AbstractUser):
     role = models.CharField(max_length=25,
                             choices=Role.choices,
                             default=Role.USER)
+
+    @property
+    def is_admin(self):
+        return self.role == 'admin' or self.is_staff
+
+    @property
+    def is_moderator(self):
+        return self.role == 'moderator'

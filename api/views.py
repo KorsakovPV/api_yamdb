@@ -6,12 +6,13 @@ from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets, exceptions
 from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt import tokens
 
 from api import serializers
-from api.permissions import IsAuthorOrAdminOrModeratorOrReadOnly
+from api.permissions import IsAuthorAdminModeratorOrReadOnly
 from api.serializers import (ReviewSerializer, CommentSerializer,
                              TitleReadSerializer, TitleWriteSerializer)
 from content.filters import TitleFilter
@@ -95,7 +96,8 @@ class TitleViewSet(ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthorOrAdminOrModeratorOrReadOnly]
+    permission_classes = [IsAuthorAdminModeratorOrReadOnly,
+                          IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs['title_id'])
@@ -112,7 +114,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthorOrAdminOrModeratorOrReadOnly]
+    permission_classes = [IsAuthorAdminModeratorOrReadOnly,
+                          IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         review = get_object_or_404(Review,
