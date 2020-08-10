@@ -1,16 +1,10 @@
-from content.models import Category, Comment, Genre, Review, Title
 from rest_framework import serializers
 
-
-from content.models import Review, Comment, Title, Genre, Category
-
-# TODO green Мне нравится, что есть сериализаторы для таких запросов, но я бы назвал их как UserEmailRegistration и UserConfirmation. Но можно оставить и так, тоже хорошо
-
-
+from content.models import Category, Comment, Genre, Review, Title
+from users.models import User
 
 
 class UserEmailRegistration(serializers.Serializer):
-
     email = serializers.EmailField(required=True)
 
 
@@ -68,3 +62,10 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'text', 'author', 'pub_date']
         model = Comment
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            'first_name', 'last_name', 'username', 'bio', 'email', 'role',)
