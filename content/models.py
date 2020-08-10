@@ -36,8 +36,6 @@ class Title(models.Model):
                                    blank=True, verbose_name='genre')
     description = models.TextField(blank=True,
                                    verbose_name='title description')
-    rating = models.IntegerField(blank=True, null=True,
-                                 verbose_name='title rating')
 
     class Meta:
         ordering = ('year',)
