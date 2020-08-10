@@ -1,7 +1,8 @@
-from api_yamdb.settings import CURRENT_YEAR
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
+from api_yamdb.settings import CURRENT_YEAR
 
 User = get_user_model()
 

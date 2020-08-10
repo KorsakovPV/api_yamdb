@@ -1,31 +1,46 @@
 from django.contrib.auth.tokens import default_token_generator
-
-
-from api import serializers
-from api.filters import TitleFilter
-from api.permissions import IsAdminOrReadOnly, IsAuthorAdminModeratorOrReadOnly
-from api.serializers import (CategorySerializer, CommentSerializer,
-                             GenreSerializer, ReviewSerializer,
-                             TitleReadSerializer, TitleWriteSerializer)
-from content.models import Category, Comment, Genre, Review, Title
-from django.contrib.auth.hashers import check_password, make_password
-
 from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import exceptions, status, viewsets
-from rest_framework.decorators import api_view
+
+from rest_framework import exceptions, filters, status, viewsets
+from rest_framework.decorators import action, api_view
 from rest_framework.filters import SearchFilter
-from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
-                                   ListModelMixin)
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.mixins import (
+    CreateModelMixin,
+    DestroyModelMixin,
+    ListModelMixin
+)
+from rest_framework.permissions import (
+    IsAdminUser,
+    IsAuthenticated,
+    IsAuthenticatedOrReadOnly
+)
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework_simplejwt import tokens
 
+from api import serializers
+from api.filters import TitleFilter
+from api.permissions import IsAdminOrReadOnly, IsAuthorAdminModeratorOrReadOnly
+from api.serializers import (
+    CategorySerializer,
+    CommentSerializer,
+    GenreSerializer,
+    ReviewSerializer,
+    TitleReadSerializer,
+    TitleWriteSerializer
+)
+from api_yamdb.settings import (
+    CONFORMATION_MESSAGE,
+    CONFORMATION_SUBJECT,
+    SEND_FROM_EMAIL
+)
+from content.models import Category, Comment, Genre, Review, Title
 from users.models import User
 
-from api_yamdb.settings import CONFORMATION_SUBJECT, CONFORMATION_MESSAGE, SEND_FROM_EMAIL
+from .permissions import IsAdmin
+from .serializers import UserSerializer
 
 
 @api_view(['POST'])
@@ -124,7 +139,6 @@ class CommentViewSet(viewsets.ModelViewSet):
         review = get_object_or_404(Review,
                                    pk=self.kwargs['review_id'],
                                    title__id=self.kwargs['title_id'])
-        # Не забываем, что в кваргах не всегда бывает то, что нужно
         queryset = Comment.objects.filter(review=review)
         return queryset
 
@@ -134,3 +148,28 @@ class CommentViewSet(viewsets.ModelViewSet):
                                    title__id=self.kwargs['title_id'])
         serializer.is_valid(raise_exception=True)
         serializer.save(author=self.request.user, review=review)
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = 'username'
+    permission_classes = [IsAdmin | IsAdminUser]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['user__username', ]
+
+    @action(methods=['patch', 'get'],
+            permission_classes=[IsAuthenticated],
+            detail=False,
+            url_path='me',
+            url_name='me')
+    def me(self, request, *args, **kwargs):
+        user = self.request.user
+        serializer = self.get_serializer(user)
+        if self.request.method == 'PATCH':
+            serializer = self.get_serializer(user,
+                                             data=request.data,
+                                             partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+        return Response(serializer.data)
