@@ -27,6 +27,13 @@ class Category(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=255, verbose_name='title name')
+    # TODO red такая же тема, как и в спринте с калькуляторами - однажды при
+    #  запуске вычислится это поле и все, и не будет обновляться. То есть
+    #  проект запущен 30 декабря 2020 года, то 2 января 2021 мы не сможем
+    #  ничего выпустить, так как данные устаревшие.
+    #  Для валидации здесь нужно указать метод, который будет валидировать,
+    #  а там уже брать текущий год (динамически, не из настроек) и говорить,
+    #  ок или нет
     year = models.IntegerField(validators=[MaxValueValidator(CURRENT_YEAR)],
                                default=0,
                                verbose_name='year of creation', db_index=True)
