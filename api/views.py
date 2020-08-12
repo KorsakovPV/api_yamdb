@@ -2,7 +2,6 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-
 from rest_framework import exceptions, filters, status, viewsets
 from rest_framework.decorators import action, api_view
 from rest_framework.filters import SearchFilter
@@ -38,7 +37,6 @@ from api_yamdb.settings import (
 )
 from content.models import Category, Comment, Genre, Review, Title
 from users.models import User
-
 from .permissions import IsAdmin
 from .serializers import UserSerializer
 
@@ -46,42 +44,41 @@ from .serializers import UserSerializer
 @api_view(['POST'])
 def send_confirmation_code(request):
     serializer = serializers.UserEmailRegistration(data=request.data)
-    # TODO gray лучше вместо ифа и вложенности прокинуть параметр
+    # TODO + gray лучше вместо ифа и вложенности прокинуть параметр
     #  raise_exception=True, тогда при невалидном сериализаторе будет эксепшен,
     #  который сделает респонс с 400 ошибкой и в боди ответа покажет, какие
     #  поля были заполнены криво
-    if serializer.is_valid():
-        email = serializer.data.get('email')
-        user = User.objects.get_or_create(email=email)
-        confirmation_code = default_token_generator.make_token(user)
-        user.confirmation_code = confirmation_code
-        # TODO gray если токен делать через default_token_generator, то его не
-        #  надо хранить - он сам по себе содержит инфу о юзере  и может сам
-        #  себя проверить
-        send_mail(CONFORMATION_SUBJECT,
-                  f'{CONFORMATION_MESSAGE} {confirmation_code}',
-                  SEND_FROM_EMAIL,
-                  [email])
-        return Response(f'The code was sent to the address {email}',
-                        status=status.HTTP_200_OK)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    serializer.is_valid(raise_exception=True)
+    email = serializer.data.get('email')
+    user = User.objects.get_or_create(email=email)
+    confirmation_code = default_token_generator.make_token(user)
+    # user.confirmation_code = confirmation_code
+    # TODO + gray если токен делать через default_token_generator, то его не
+    #  надо хранить - он сам по себе содержит инфу о юзере  и может сам
+    #  себя проверить
+    send_mail(CONFORMATION_SUBJECT,
+              f'{CONFORMATION_MESSAGE} {confirmation_code}',
+              SEND_FROM_EMAIL,
+              [email])
+    return Response(f'The code was sent to the address {email}',
+                    status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
 def get_jwt_token(request):
     serializer = serializers.UserConfirmation(data=request.data)
-    if serializer.is_valid():
-        email = serializer.data.get('email')
-        user = get_object_or_404(User, email=email)
-        # TODO red кстати, о проверке - а где проверка токена из письма?
-        #  default_token_generator умеет проверять, подходит ли этот код этому
-        #  юзеру, здесь это должно быть
-        if request.user.is_authenticated():
-            token = tokens.AccessToken.for_user(user)
-            return Response({'token': f'{token}'}, status=status.HTTP_200_OK)
-        return Response({'confirmation_code': 'Invalid confirmation code'},
-                        status=status.HTTP_400_BAD_REQUEST)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    serializer.is_valid(raise_exception=True)
+    email = serializer.data.get('email')
+    confirmation_code = serializer.data.get('confirmation_code')
+    user = get_object_or_404(User, email=email)
+    # TODO + red кстати, о проверке - а где проверка токена из письма?
+    #  default_token_generator умеет проверять, подходит ли этот код этому
+    #  юзеру, здесь это должно быть
+    if default_token_generator.check_token(user, confirmation_code):
+        token = tokens.AccessToken.for_user(user)
+        return Response({'token': f'{token}'}, status=status.HTTP_200_OK)
+    return Response({'confirmation_code': 'Invalid confirmation code'},
+                    status=status.HTTP_400_BAD_REQUEST)
 
 
 class ModelMixinSet(CreateModelMixin, ListModelMixin, DestroyModelMixin,

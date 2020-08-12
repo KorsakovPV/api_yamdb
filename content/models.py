@@ -1,8 +1,9 @@
+from datetime import datetime
+
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.core.exceptions import ValidationError
-from datetime import datetime
 
 User = get_user_model()
 
@@ -34,13 +35,6 @@ class Category(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=255, verbose_name='title name')
-    # TODO red такая же тема, как и в спринте с калькуляторами - однажды при
-    #  запуске вычислится это поле и все, и не будет обновляться. То есть
-    #  проект запущен 30 декабря 2020 года, то 2 января 2021 мы не сможем
-    #  ничего выпустить, так как данные устаревшие.
-    #  Для валидации здесь нужно указать метод, который будет валидировать,
-    #  а там уже брать текущий год (динамически, не из настроек) и говорить,
-    #  ок или нет
     year = models.IntegerField(validators=[validate_year],
                                default=0,
                                verbose_name='year of creation', db_index=True)
