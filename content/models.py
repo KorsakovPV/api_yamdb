@@ -1,10 +1,17 @@
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-
-from api_yamdb.settings import CURRENT_YEAR
+from django.core.exceptions import ValidationError
+from datetime import datetime
 
 User = get_user_model()
+
+
+def validate_year(year):
+    current_year = datetime.now().year
+    if year > current_year:
+        raise ValidationError(
+            f'title cannot be created later than {current_year}')
 
 
 class Genre(models.Model):
@@ -34,7 +41,7 @@ class Title(models.Model):
     #  Для валидации здесь нужно указать метод, который будет валидировать,
     #  а там уже брать текущий год (динамически, не из настроек) и говорить,
     #  ок или нет
-    year = models.IntegerField(validators=[MaxValueValidator(CURRENT_YEAR)],
+    year = models.IntegerField(validators=[validate_year],
                                default=0,
                                verbose_name='year of creation', db_index=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL,
