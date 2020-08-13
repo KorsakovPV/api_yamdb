@@ -124,9 +124,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         #  можем только проверить, что сам по себе запрос верен (например,
         #  запрос на ревью точно от нужного тайтла). Такую валидацию нужно
         #  выносить в сериализатор
-        if Review.objects.filter(author=self.request.user,
-                                 title_id=title).exists():
-            raise exceptions.ValidationError('Вы уже поставили оценку')
+
         serializer.save(author=self.request.user, title=title)
 
 
