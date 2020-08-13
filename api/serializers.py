@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 
 from content.models import Category, Comment, Genre, Review, Title
 from users.models import User
@@ -52,12 +51,8 @@ class ReviewSerializer(serializers.ModelSerializer):
                                           read_only=True)
 
     class Meta:
-        fields = ['id', 'text', 'author', 'score', 'pub_date']
+        fields = '__all__'
         model = Review
-
-        # validators = [UniqueTogetherValidator(
-        #         queryset=Review.objects.all(),
-        #         fields=['title', 'author'])]
 
     def validate(self, data):
         if self.context['request'].method == 'PATCH':
@@ -68,12 +63,13 @@ class ReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Вы уже поставили оценку')
         return data
 
+
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(slug_field='username',
                                           read_only=True)
 
     class Meta:
-        fields = ['id', 'text', 'author', 'pub_date']
+        fields = '__all__'
         model = Comment
 
 

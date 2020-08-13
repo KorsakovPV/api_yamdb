@@ -2,7 +2,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import exceptions, filters, status, viewsets
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action, api_view
 from rest_framework.filters import SearchFilter
 from rest_framework.mixins import (
@@ -120,11 +120,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs['title_id'])
-        # TODO red валидация таких вещей не делается в запросе. В запросе мы
-        #  можем только проверить, что сам по себе запрос верен (например,
-        #  запрос на ревью точно от нужного тайтла). Такую валидацию нужно
-        #  выносить в сериализатор
-
         serializer.save(author=self.request.user, title=title)
 
 
