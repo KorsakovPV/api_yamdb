@@ -27,8 +27,6 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         return False
 
 
-# TODO + gray лучше все же в одно условие это скомпоновать, вместо вложенности
-#  и двух ретенрнов
 class IsAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
         return request.user.is_authenticated and request.user.is_admin

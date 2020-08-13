@@ -4,8 +4,6 @@ from django.utils.translation import gettext_lazy as _
 
 
 class Role(models.TextChoices):
-    # TODO + red уже лучше, но это не внутренний под-класс в юзере, это отдельная
-    #  сущность, поэтому просто этот класс нужно вынести наружу
     # TODO gray гет-текст нормальная тема, но сейчас вы себе просто
     #  усложнили работу немного
     USER = 'user', _('User')
@@ -25,9 +23,6 @@ class User(AbstractUser):
     @property
     def is_admin(self):
         return self.role == Role.ADMIN or self.is_staff
-
-    # TODO + red сравниваем не со строками, а Role.USER, например.
-    #  Для модератора то же самое
 
     @property
     def is_moderator(self):
