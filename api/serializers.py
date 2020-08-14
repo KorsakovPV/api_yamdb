@@ -51,7 +51,7 @@ class ReviewSerializer(serializers.ModelSerializer):
                                           read_only=True)
 
     class Meta:
-        fields = '__all__'
+        fields = ['id', 'text', 'author', 'score', 'pub_date']
         model = Review
 
     def validate(self, data):
@@ -69,7 +69,7 @@ class CommentSerializer(serializers.ModelSerializer):
                                           read_only=True)
 
     class Meta:
-        fields = '__all__'
+        fields = ['id', 'text', 'author', 'pub_date']
         model = Comment
 
 
