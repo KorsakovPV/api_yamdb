@@ -1,9 +1,12 @@
+"""Настройка панели администратора."""
 from django.contrib import admin
 
 from .models import Category, Comment, Genre, Review, Title
 
 
 class GenreAdmin(admin.ModelAdmin):
+    """Настройки таблицы жанр в панели администратора."""
+
     list_display = ('name', 'slug')
     search_fields = ('name',)
     list_filter = ('name',)
@@ -11,6 +14,8 @@ class GenreAdmin(admin.ModelAdmin):
 
 
 class CategoryAdmin(admin.ModelAdmin):
+    """Настройки таблицы категория в панели администратора."""
+
     list_display = ('name', 'slug')
     search_fields = ('name',)
     list_filter = ('name',)
@@ -18,6 +23,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class TitleAdmin(admin.ModelAdmin):
+    """Настройки таблицы заголовок в панели администратора."""
+
     list_display = (
         'name', 'year', 'category', 'description')
     search_fields = ('name',)
@@ -26,6 +33,8 @@ class TitleAdmin(admin.ModelAdmin):
 
 
 class ReviewAdmin(admin.ModelAdmin):
+    """Настройки таблицы отзывы в панели администратора."""
+
     list_display = ('title', 'text', 'author', 'score', 'pub_date')
     search_fields = ('title',)
     list_filter = ('author', 'score')
@@ -33,6 +42,8 @@ class ReviewAdmin(admin.ModelAdmin):
 
 
 class CommentAdmin(admin.ModelAdmin):
+    """Настройки таблицы комментарии в панели администратора."""
+
     list_display = ('review', 'text', 'author', 'pub_date')
     search_fields = ('text',)
     list_filter = ('review', 'author')

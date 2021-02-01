@@ -1,3 +1,4 @@
+"""Описание моделей."""
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
@@ -9,6 +10,7 @@ User = get_user_model()
 
 
 def validate_year(year):
+    """Валидатор для года. Год не может быть больше текущего."""
     current_year = datetime.now().year
     if year > current_year:
         raise ValidationError(
@@ -16,24 +18,32 @@ def validate_year(year):
 
 
 class Genre(models.Model):
+    """Модель для хранения жанров."""
+
     name = models.CharField(max_length=255, verbose_name='genre name')
     slug = models.SlugField(max_length=30, unique=True,
                             verbose_name='genre slug')
 
     def __str__(self):
+        """Переопределяет строковое представление объекта."""
         return f'{self.pk} - {self.name} - {self.slug}'
 
 
 class Category(models.Model):
+    """Модель для хранения категорий."""
+
     name = models.CharField(max_length=255, verbose_name='category name')
     slug = models.SlugField(max_length=30, unique=True,
                             verbose_name='category slug')
 
     def __str__(self):
+        """Переопределяет строковое представление объекта."""
         return f'{self.pk} - {self.name} - {self.slug}'
 
 
 class Title(models.Model):
+    """Модель для хранения заголовков."""
+
     name = models.CharField(max_length=255, verbose_name='title name')
     year = models.IntegerField(validators=[validate_year],
                                default=0,
@@ -47,13 +57,18 @@ class Title(models.Model):
                                    verbose_name='title description')
 
     class Meta:
+        """Задаем сортировку по умолчанию."""
+
         ordering = ('year',)
 
     def __str__(self):
+        """Переопределяет строковое представление объекта."""
         return f'{self.pk} - {self.name[:20]} - {self.category}'
 
 
 class Review(models.Model):
+    """Модель для хранения отзывов."""
+
     title = models.ForeignKey(Title, on_delete=models.CASCADE,
                               related_name='titles_reviews')
     text = models.TextField(verbose_name='review text')
@@ -68,13 +83,18 @@ class Review(models.Model):
                                     db_index=True)
 
     class Meta:
+        """Задаем сортировку по умолчанию."""
+
         ordering = ('pub_date',)
 
     def __str__(self):
+        """Переопределяет строковое представление объекта."""
         return f'{self.pk} - {self.author} - {self.text[:20]}'
 
 
 class Comment(models.Model):
+    """Модель для хранения комментариев."""
+
     review = models.ForeignKey(Review, on_delete=models.CASCADE,
                                related_name='review_comments',
                                verbose_name='commented review')
@@ -87,7 +107,10 @@ class Comment(models.Model):
                                     db_index=True)
 
     class Meta:
+        """Задаем сортировку по умолчанию."""
+
         ordering = ('pub_date',)
 
     def __str__(self):
+        """Переопределяет строковое представление объекта."""
         return f'{self.pk} - {self.author} - {self.text[:20]}'

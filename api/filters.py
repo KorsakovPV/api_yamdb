@@ -15,7 +15,7 @@ class TitleFilter(filters.FilterSet):
     year = filters.NumberFilter(field_name='year', lookup_expr='contains')
 
     class Meta:
-        """Мета класс. Определяем модель и поля модели"""
-        
+        """Мета класс. Определяем модель и поля модели."""
+
         model = Title
         fields = ['category', 'genre', 'name', 'year']

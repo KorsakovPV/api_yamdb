@@ -1,3 +1,4 @@
+"""Представления."""
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
@@ -47,6 +48,7 @@ from users.models import User
 
 @api_view(['POST'])
 def send_confirmation_code(request):
+    """Эмуляция отправки кода подтверждения."""
     serializer = serializers.UserEmailRegistration(data=request.data)
     serializer.is_valid(raise_exception=True)
     email = serializer.data.get('email')
@@ -62,6 +64,7 @@ def send_confirmation_code(request):
 
 @api_view(['POST'])
 def get_jwt_token(request):
+    """Отправка token."""
     serializer = serializers.UserConfirmation(data=request.data)
     serializer.is_valid(raise_exception=True)
     email = serializer.data.get('email')
@@ -76,10 +79,14 @@ def get_jwt_token(request):
 
 class ModelMixinSet(CreateModelMixin, ListModelMixin, DestroyModelMixin,
                     GenericViewSet):
+    """Класс ModelMixinSet. Промежуточный класс для дальнейшего наследования."""
+
     pass
 
 
 class CategoryViewSet(ModelMixinSet):
+    """Класс категория. Не полный ModelViewSet."""
+
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly, ]
@@ -89,6 +96,8 @@ class CategoryViewSet(ModelMixinSet):
 
 
 class GenreViewSet(ModelMixinSet):
+    """Класс жанр. Не полный ModelViewSet."""
+
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = [IsAdminOrReadOnly, ]
@@ -98,41 +107,52 @@ class GenreViewSet(ModelMixinSet):
 
 
 class TitleViewSet(ModelViewSet):
+    """Класс заголовок. Не полный ModelViewSet."""
+
     queryset = Title.objects.all()
     permission_classes = [IsAdminOrReadOnly, ]
     filterset_class = TitleFilter
 
     def get_serializer_class(self):
+        """Возвращает класс, который должен использоваться для сериализатора."""
         if self.action in ('list', 'retrieve'):
             return TitleReadSerializer
         return TitleWriteSerializer
 
     def get_queryset(self):
+        """Возвращает запрос для заголовка."""
         return Title.objects.annotate(
             rating=Avg('titles_reviews__score')).all()
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    """Класс отзыва."""
+
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthorAdminModeratorOrReadOnly,
                           IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
+        """Возвращает запрос для отзыва."""
         title = get_object_or_404(Title, id=self.kwargs['title_id'])
         queryset = Review.objects.filter(title=title)
         return queryset
 
     def perform_create(self, serializer):
+        """Вызывается CreateModelMixin при сохранении нового экземпляра объекта."""
         title = get_object_or_404(Title, id=self.kwargs['title_id'])
         serializer.save(author=self.request.user, title=title)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
+    """Класс комментария."""
+
     serializer_class = CommentSerializer
     permission_classes = [IsAuthorAdminModeratorOrReadOnly,
                           IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
+        """Возвращает запрос для комментариев."""
         review = get_object_or_404(Review,
                                    pk=self.kwargs['review_id'],
                                    title__id=self.kwargs['title_id'])
@@ -140,6 +160,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
+        """Вызывается CreateModelMixin при сохранении нового экземпляра объекта."""
         review = get_object_or_404(Review,
                                    pk=self.kwargs['review_id'],
                                    title__id=self.kwargs['title_id'])
@@ -148,6 +169,8 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.ModelViewSet):
+    """Класс пользователей."""
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'username'
@@ -161,6 +184,7 @@ class UserViewSet(viewsets.ModelViewSet):
             url_path='me',
             url_name='me')
     def me(self, request, *args, **kwargs):
+        """PATCH-запрос на /users/me/ для заполнения поля в своём профайле."""
         user = self.request.user
         serializer = self.get_serializer(user)
         if self.request.method == 'PATCH':
