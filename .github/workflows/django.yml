@@ -13,7 +13,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.8]
 
     steps:
     - uses: actions/checkout@v2
@@ -30,7 +30,7 @@ jobs:
         pytest
     - name: Run PyDocStyle
       run: |
-        pydocstyle api content users
+        pydocstyle --config=setup.cfg api content users
     - name: Run flake8
       run: |
         flake8
