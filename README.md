@@ -1,6 +1,6 @@
 ![YAMDB banner](/static/logo.jpg)
 
-[![api_yamdb workflow](https://github.com/KorsakovPV/api_yamdb/workflows/PyTest/badge.svg)](https://github.com/KorsakovPV/hw02_community/actions)
+[![api_yamdb workflow](https://github.com/KorsakovPV/api_yamdb/workflows/PyTest/badge.svg)](https://github.com/KorsakovPV/api_yamdb/actions)
 ___
 
 # REST API для сервиса YaMDb — базы отзывов о фильмах, книгах и музыке. (Совместный проект студентов Яндекс.Практикум)
