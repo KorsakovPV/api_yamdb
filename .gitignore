@@ -18,8 +18,4 @@ media/
 
 db.sqlite3
 
-
-
-setup.cfg
-
 /sent_emails/

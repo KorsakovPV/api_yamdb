@@ -30,7 +30,7 @@ jobs:
         pytest
     - name: Run PyDocStyle
       run: |
-        pydocstyle --config=setup.cfg api content users
+        pydocstyle api content users
     - name: Run flake8
       run: |
         flake8
