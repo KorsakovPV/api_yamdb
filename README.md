@@ -1,5 +1,6 @@
-![YAMDB banner](/static/%D0%91%D0%B5%D0%B7%20%D0%B8%D0%BC%D0%B5%D0%BD%D0%B8-1.jpg)
+![YAMDB banner](/static/logo.jpg)
 
+[![api_yamdb workflow](https://github.com/KorsakovPV/api_yamdb/workflows/PyTest/badge.svg)](https://github.com/KorsakovPV/hw02_community/actions)
 ___
 
 # REST API для сервиса YaMDb — базы отзывов о фильмах, книгах и музыке. (Совместный проект студентов Яндекс.Практикум)
@@ -24,7 +25,7 @@ ___
 4. Установите зависимости.
 - ``pip install -r requirements.txt``
 5. Запустите локальный сервер.
-- ``python3 manage.py runserver``
+- ``python manage.py runserver``
 6. Перейдите в документацию проекта.
 - **[REDOC](http://127.0.0.1:8000/redoc/)**
 

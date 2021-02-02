@@ -28,3 +28,12 @@ jobs:
     - name: Run Tests
       run: |
         pytest
+    - name: Run PyDocStyle
+      run: |
+        pydocstyle api content users
+    - name: Run flake8
+      run: |
+        flake8
+    - name: Run isort
+      run: |
+        isort

@@ -15,7 +15,8 @@ class IsAuthorAdminModeratorOrReadOnly(permissions.BasePermission):
         """
         Метод возвращает bool.
 
-        Если запрос безопасный, только чтение ('GET', 'HEAD', 'OPTIONS') возврашает True.
+        Если запрос безопасный, только чтение ('GET', 'HEAD', 'OPTIONS')
+        возврашает True.
         Если пользователь автор модератор или админ возвращает True.
 
         """
@@ -34,7 +35,8 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         """
         Метод возвращает bool.
 
-        Если запрос безопасный, только чтение ('GET', 'HEAD', 'OPTIONS') возврашает True.
+        Если запрос безопасный, только чтение ('GET', 'HEAD', 'OPTIONS')
+        возврашает True.
         Если пользователь админ возвращает True.
 
         """

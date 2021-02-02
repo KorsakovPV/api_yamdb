@@ -139,7 +139,12 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
-        """Вызывается CreateModelMixin при сохранении нового экземпляра объекта."""
+        """
+        Переопределяем метод сохраниения для класса.
+
+        Вызывается CreateModelMixin при сохранении нового экземпляра объекта.
+
+        """
         title = get_object_or_404(Title, id=self.kwargs['title_id'])
         serializer.save(author=self.request.user, title=title)
 
@@ -160,7 +165,12 @@ class CommentViewSet(viewsets.ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
-        """Вызывается CreateModelMixin при сохранении нового экземпляра объекта."""
+        """
+        Переопределяем метод сохраниения для класса.
+
+        Вызывается CreateModelMixin при сохранении нового экземпляра объекта.
+
+        """
         review = get_object_or_404(Review,
                                    pk=self.kwargs['review_id'],
                                    title__id=self.kwargs['title_id'])

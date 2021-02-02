@@ -10,5 +10,5 @@ class ApiConfig(AppConfig):
     путь для его импорта в INSTALLED_APPS.
 
     """
-    
+
     name = 'api'
